@@ -1,0 +1,56 @@
+ERROR: Container runtime is not running  / RESOLVED 
+ERROR DESCRIPTION OUTPUT:After initializing kudeadm 
+root@ip-172-31-3-84:/# sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+I0320 03:51:49.234117    5239 version.go:256] remote version is much newer: v1.29.3; falling back to: stable-1.28
+[init] Using Kubernetes version: v1.28.8
+[preflight] Running pre-flight checks
+error execution phase preflight: [preflight] Some fatal errors occurred:
+        [ERROR CRI]: container runtime is not running: output: time="2024-03-20T03:51:49Z" level=fatal msg="validate service connection: validate CRI v1 runtime API for endpoint \"unix:///var/run/containerd/containerd.sock\": rpc error: code = Unimplemented desc = unknown service runtime.v1.RuntimeService"
+, error: exit status 1
+[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+To see the stack trace of this error execute with --v=5 or higher
+SOLUTION 
+Correct configuration is specified for the endpoint "unix:///var/run/containerd/containerd.sock" and enabled the plugin instead of disabled.
+Added below code in /etc/containerd/config.toml
+[plugins."io.containerd.grpc.v1.cri".containerd]
+endpoint = "unix:///var/run/containerd/containerd.sock"
+
+systemctl restart containerd
+
+My /etc/containerd/config.toml file :
+
+root@ubuntu:/etc# cat /etc/containerd/config.toml
+#   Copyright 2018-2022 Docker Inc.
+
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+
+#       http://www.apache.org/licenses/LICENSE-2.0
+
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+enabled_plugins = ["cri"]
+[plugins."io.containerd.grpc.v1.cri".containerd]
+  endpoint = "unix:///var/run/containerd/containerd.sock"
+
+
+#root = "/var/lib/containerd"
+#state = "/run/containerd"
+#subreaper = true
+#oom_score = 0
+
+#[grpc]
+#  address = "/run/containerd/containerd.sock"
+#  uid = 0
+#  gid = 0
+
+#[debug]
+#  address = "/run/containerd/debug.sock"
+#  uid = 0
+#  gid = 0
+#  level = "info"
