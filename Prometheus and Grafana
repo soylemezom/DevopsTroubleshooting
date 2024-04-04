@@ -1,0 +1,66 @@
+Install Prometheus
+Download Prometheus:
+
+Copy code
+wget https://github.com/prometheus/prometheus/releases/download/v2.30.1/prometheus-2.30.1.linux-amd64.tar.gz
+tar xvfz prometheus-2.30.1.linux-amd64.tar.gz
+sudo mv prometheus-2.30.1.linux-amd64 /usr/local/bin/prometheus
+Create Prometheus user and directories:
+
+Copy code
+sudo useradd --no-create-home --shell /bin/false prometheus
+sudo mkdir /var/lib/prometheus
+sudo chown prometheus:prometheus /var/lib/prometheus
+Create a configuration file:
+
+
+Copy code
+sudo nano /etc/prometheus.yml
+Sample prometheus.yml configuration:
+
+yaml
+Copy code
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+Run Prometheus:
+
+
+Copy code
+sudo -u prometheus /usr/local/bin/prometheus --config.file /etc/prometheus.yml --storage.tsdb.path /var/lib/prometheus --web.enable-lifecycle
+Install Grafana
+Add Grafana repository and key:
+
+Copy code
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+Update package index and install Grafana:
+
+
+Copy code
+sudo apt-get update
+sudo apt-get install grafana
+Start Grafana service:
+
+
+Copy code
+sudo systemctl start grafana-server
+Enable Grafana service to start on boot:
+
+
+Copy code
+sudo systemctl enable grafana-server
+Access Grafana:
+Open a web browser and go to http://localhost:3000. Log in with username admin and password admin.
+
+Configure Prometheus as a data source in Grafana:
+
+Go to Configuration > Data Sources > Add data source.
+Choose Prometheus as the type.
+Set the URL to http://localhost:9090 (or the address where Prometheus is running).
+Click Save & Test.
