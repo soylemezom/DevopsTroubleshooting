@@ -1,0 +1,9 @@
+We need to change the Docker cgroup driver by creating a configuration file `/etc/docker/daemon.json` and adding the following line then restart deamon, docker and kubelet:
+
+{
+"exec-opts":["native.cgroupdriver=systemd"]
+}       
+
+We  specified an execution option for Docker. This particular option, "native.cgroupdriver=systemd", sets the control group (cgroup) driver to systemd. This is typically done to ensure Docker containers can properly integrate with systemd for managing system services.
+
+sudo service docker restart
